@@ -1,2 +1,2 @@
 # projeto-halloween
-mini-projeto Mchine in Learning
+mini-projeto Machine in Learning
