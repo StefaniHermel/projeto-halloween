@@ -8,6 +8,8 @@ Analisei 1.500 pedidos fictícios de agosto a novembro de 2024 e 2025. Antes de 
 
 **📅 Período.** Outubro concentra os pedidos: 393 em 2024 e 410 em 2025, cerca de 52,5% e 54,8% dos 748 pedidos com data válida de cada ano. O pico no mês do Halloween se repete e cresce um pouco de um ano para o outro. Agrupei por ano-mês para não misturar 2024 com 2025.
 
+**💡 O que isso sugere.** Como outubro concentra mais da metade dos pedidos e a Web é o canal principal, faz sentido preparar estoque e campanhas com antecedência para outubro, com foco no site. Também seria prudente corrigir o registro de status (pedidos Concluídos sem data de entrega) antes de usá-lo em qualquer análise ou modelo.
+
 **⚠️ Limitações.** A base é fictícia e não representa o mercado real. As contagens são de pedidos, não de unidades, e cada pedido pode ter várias unidades. Datas inválidas reduzem a amostra por período.
 
 **🤖 Lição para Machine Learning.** Limpar os dados melhora a base, mas não garante um bom modelo: ainda é preciso verificar se a base é representativa, escolher bem o modelo e avaliar com dados novos para evitar overfitting e underfitting.
