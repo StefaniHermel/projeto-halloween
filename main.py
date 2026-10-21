@@ -7,6 +7,11 @@ from funcoes import (
     validar_numeros,
     contar_problemas_numericos,
     separar_registros,
+    investigar_entrega_sem_data,
+    tratar_datas,
+    contar_datas_invalidas,
+    contar_por_canal,
+    contar_por_ano_mes,
 )
 
 CAMINHO_CSV = "halloween_vendas.csv"
@@ -70,8 +75,44 @@ def main():
     ]
     print(com_problema[colunas].head(5).to_string(index=False))
 
+    print("\n=== SPRINT 4: REGRAS DE NEGÓCIO E DATAS ===")
+
+    print("\nValores de status_pedido:")
+    print(df["status_pedido"].value_counts().to_string())
+
+    resultado = investigar_entrega_sem_data(df)
+    print("\nHipótese: todo pedido sem data_entrega está Cancelado")
+    print(f"- sem entrega e cancelados: {resultado['sem_entrega_e_cancelado']}")
+    print(f"- sem entrega com outro status: {resultado['sem_entrega_outro_status']}")
+    print(f"- total de cancelados na base: {resultado['total_cancelados']}")
+
+    if resultado["hipotese_verdadeira"]:
+        print("Conclusão: hipótese VERDADEIRA, não há contraexemplo.")
+    else:
+        print("Conclusão: hipótese FALSA, existe contraexemplo.")
+        print("\nAté 3 exemplos de pedidos sem entrega e com outro status:")
+        print(resultado["exemplos"].to_string(index=False))
+
+    df = tratar_datas(df)
+    print("\nExemplos de conversão de data_venda:")
+    colunas_data = ["data_venda", "ano", "mes", "dia", "hora", "data_br"]
+    print(df[colunas_data].head(5).to_string(index=False))
+
+    print("\nDatas de venda com problema:")
+    for nome, total in contar_datas_invalidas(df).items():
+        print(f"- {nome}: {total}")
+
+    contagem_canal, excluidos_canal = contar_por_canal(df)
+    print("\nPedidos registrados por canal (todos os status):")
+    print(contagem_canal.to_string())
+    print(f"Excluídos por canal não reconhecido: {excluidos_canal}")
+
+    contagem_periodo, excluidos_periodo = contar_por_ano_mes(df)
+    print("\nPedidos registrados por ano-mês (todos os status):")
+    print(contagem_periodo.to_string())
+    print(f"Excluídos por data_venda inválida ou vazia: {excluidos_periodo}")
+
 
 if __name__ == "__main__":
     main()
-
     
