@@ -1,3 +1,4 @@
+import math
 import re
 import unicodedata
 
@@ -132,3 +133,126 @@ def contar_correcoes(df):
         "dessas, com pontuacao/espacos removidos pelo re.sub": int(df["categoria_limpa_regex"].sum()),
         "canais nao reconhecidos": int((df["canal_padrao"] == "nao reconhecido").sum()),
     }
+
+
+# ---------------------------------------------------------------
+# SPRINT 3: nulos e validação de quantidade e preço
+# ---------------------------------------------------------------
+
+def validar_quantidade(valor):
+    """Valida a quantidade: precisa ser inteiro maior que zero.
+
+    Regra: não invento valor. Se tem problema, o número vira None
+    e o motivo fica registrado em texto.
+
+    Retorna: (numero_ou_None, motivo_do_problema)
+    - motivo vazio ("") significa que a quantidade está válida.
+    """
+    texto = valor.strip()
+
+    if texto == "":
+        return None, "vazia"
+
+    try:
+        numero = int(texto)
+    except ValueError:
+        # Texto que não é número inteiro (ex.: "abc" ou "2.5").
+        # O except evita que o programa pare: ele marca e segue.
+        return None, "nao e inteiro"
+
+    if numero <= 0:
+        return None, "menor ou igual a zero"
+
+    return numero, ""
+
+
+def validar_preco(valor):
+    """Valida o preço unitário: precisa estar preenchido e não ser negativo.
+
+    Regra: preço 0 é aceito (o enunciado diz "não negativo").
+    Preço ausente NÃO vira zero: fica marcado como problema.
+
+    Retorna: (numero_ou_None, motivo_do_problema)
+    """
+    texto = valor.strip()
+
+    if texto == "":
+        return None, "ausente"
+
+    try:
+        numero = float(texto)
+    except ValueError:
+        return None, "nao e numero"
+
+    if not math.isfinite(numero):
+        return None, "nao e numero"
+
+    if numero < 0:
+        return None, "negativo"
+
+    return numero, ""
+
+
+def validar_numeros(df):
+    """Valida quantidade e preço de cada pedido e marca os problemas.
+
+    Cria colunas novas, sem mexer nas originais:
+    - quantidade_num / preco_num: valor convertido (vazio se inválido)
+    - quantidade_problema / preco_problema: motivo ("" se estiver ok)
+    - pedido_com_problema: True se qualquer um dos dois campos falhou
+    """
+    df = df.copy()
+
+    quantidades = []
+    problemas_quantidade = []
+    precos = []
+    problemas_preco = []
+
+    for q, p in zip(df["quantidade"], df["preco_unitario"]):
+        numero_q, problema_q = validar_quantidade(q)
+        numero_p, problema_p = validar_preco(p)
+
+        quantidades.append(numero_q)
+        problemas_quantidade.append(problema_q)
+        precos.append(numero_p)
+        problemas_preco.append(problema_p)
+
+    df["quantidade_num"] = quantidades
+    df["quantidade_problema"] = problemas_quantidade
+    df["preco_num"] = precos
+    df["preco_problema"] = problemas_preco
+
+    # O "|" significa OU: basta um dos dois campos ter problema
+    df["pedido_com_problema"] = (
+        (df["quantidade_problema"] != "") | (df["preco_problema"] != "")
+    )
+    return df
+
+
+def contar_problemas_numericos(df):
+    """Conta problemas por campo e o total de pedidos afetados.
+
+    O total de pedidos NÃO é a soma dos dois campos, porque um mesmo
+    pedido pode ter problema na quantidade e no preço ao mesmo tempo.
+    Por isso uso OU (|) para o total e E (&) para a sobreposição.
+    """
+    q_tem = df["quantidade_problema"] != ""
+    p_tem = df["preco_problema"] != ""
+
+    return {
+        "quantidade com problema": int(q_tem.sum()),
+        "preco_unitario com problema": int(p_tem.sum()),
+        "pedidos com problema nos dois campos": int((q_tem & p_tem).sum()),
+        "pedidos afetados (sem contar duas vezes)": int((q_tem | p_tem).sum()),
+    }
+
+
+def separar_registros(df):
+    """Separa os pedidos válidos dos pedidos com problema numérico.
+
+    Retorna: (df_validos, df_com_problema)
+    Nada é apagado nem alterado: só dividimos em dois grupos.
+    """
+    com_problema = df[df["pedido_com_problema"]]
+    validos = df[~df["pedido_com_problema"]]
+    return validos, com_problema
