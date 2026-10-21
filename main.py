@@ -4,6 +4,9 @@ from funcoes import (
     tratar_categorias,
     tratar_canais,
     contar_correcoes,
+    validar_numeros,
+    contar_problemas_numericos,
+    separar_registros,
 )
 
 CAMINHO_CSV = "halloween_vendas.csv"
@@ -41,7 +44,34 @@ def main():
     for nome, total in contar_correcoes(df).items():
         print(f"- {nome}: {total}")
 
+    print("\n=== SPRINT 3: NULOS E VALIDAÇÃO ===")
+    df = validar_numeros(df)
+
+    print("\nTipos de problema em quantidade:")
+    problemas_q = df[df["quantidade_problema"] != ""]["quantidade_problema"]
+    print(problemas_q.value_counts().to_string())
+
+    print("\nTipos de problema em preco_unitario:")
+    problemas_p = df[df["preco_problema"] != ""]["preco_problema"]
+    print(problemas_p.value_counts().to_string())
+
+    print("\nContagens de problemas:")
+    for nome, total in contar_problemas_numericos(df).items():
+        print(f"- {nome}: {total}")
+
+    validos, com_problema = separar_registros(df)
+    print(f"\nPedidos válidos: {len(validos)}")
+    print(f"Pedidos separados com problema: {len(com_problema)}")
+
+    print("\nExemplos de pedidos com problema:")
+    colunas = [
+        "pedido_id", "quantidade", "preco_unitario",
+        "quantidade_problema", "preco_problema",
+    ]
+    print(com_problema[colunas].head(5).to_string(index=False))
+
 
 if __name__ == "__main__":
     main()
+
     
