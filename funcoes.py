@@ -407,3 +407,13 @@ def contar_por_ano_mes(df):
     contagem = validos["ano_mes"].value_counts().sort_index()
     excluidos = len(df) - len(validos)
     return contagem, excluidos
+
+def contar_status_sem_entrega(df):
+    """Conta os status dos pedidos que estão sem data_entrega.
+
+    Serve para detalhar o grupo dos contraexemplos: quantos dos pedidos
+    sem entrega são Cancelado, Concluído ou Devolvido.
+    Não altera nenhum dado.
+    """
+    sem_entrega = df[df["data_entrega"].str.strip() == ""]
+    return sem_entrega["status_pedido"].value_counts()

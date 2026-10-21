@@ -12,6 +12,7 @@ from funcoes import (
     contar_datas_invalidas,
     contar_por_canal,
     contar_por_ano_mes,
+    contar_status_sem_entrega,
 )
 
 CAMINHO_CSV = "halloween_vendas.csv"
@@ -92,6 +93,9 @@ def main():
         print("Conclusão: hipótese FALSA, existe contraexemplo.")
         print("\nAté 3 exemplos de pedidos sem entrega e com outro status:")
         print(resultado["exemplos"].to_string(index=False))
+
+    print("\nStatus dos pedidos sem data_entrega:")
+    print(contar_status_sem_entrega(df).to_string())
 
     df = tratar_datas(df)
     print("\nExemplos de conversão de data_venda:")
