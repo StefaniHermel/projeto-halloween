@@ -1,129 +1,112 @@
-# 🎃 projeto-halloween
+# Mini-Projeto Avaliativo: Festa em Cena (Halloween)
 
-Mini-projeto avaliativo de Machine Learning e Visão Computacional (Módulo 1): análise exploratória e limpeza de dados de vendas da **Festa em Cena** 👻
+Projeto do curso de Machine Learning e Visão Computacional (Turma 05, Módulo 1, Semana 07).
 
-## 📋 Descrição do projeto
+## Descrição do projeto
 
-A Festa em Cena é uma rede fictícia que vende fantasias e acessórios de Halloween pelos canais **Mercado** 🛒, **Loja física** 🏬 e **Web** 🌐. A base `halloween_vendas.csv` tem problemas intencionais (categorias vazias, pontuação indevida, canais escritos de formas diferentes, quantidades inválidas, preços ausentes e datas inválidas).
+### O problema
 
-🎯 O objetivo do programa (`main.py`) é ler o CSV com Pandas, validar e padronizar os dados e gerar um relatório simples antes de comparar os períodos de venda. O arquivo original nunca é alterado: o tratamento cria colunas novas no DataFrame.
+A Festa em Cena é uma rede **fictícia** que vende fantasias e acessórios de Halloween por três canais: **Mercado** (caixas de supermercados parceiros), **Loja física** (lojas próprias) e **Web** (pedidos pelo site). A empresa precisa organizar seus registros e entender como os pedidos variam por canal e período. A base tem problemas intencionais: categorias vazias, pontuação indevida, canais escritos de formas diferentes, quantidades inválidas, preços ausentes e datas inválidas.
 
-### 🔎 Significado dos dados
+### Objetivo do programa
 
-- 🧾 **Uma linha:** um pedido de um único produto, que pode ter várias unidades.
-- 🔢 `pedido_id`: número que identifica o pedido.
-- 📅 `data_venda`: data e hora do pedido (horário local de São Paulo).
-- 🏪 `canal_venda`: onde o pedido foi feito (Mercado, Loja física ou Web).
-- 📦 `status_pedido`: situação do pedido (Concluído, Cancelado ou Devolvido).
+Ler o arquivo `halloween_vendas.csv` com Pandas, validar e padronizar os dados, investigar a regra de entrega sem data e gerar um relatório simples com contagens de pedidos por canal e por ano-mês.
 
-### ⚙️ Regras adotadas
+### O que significa uma linha
 
-- 🔤 **Textos:** categoria passa por `.strip()`, `.lower()` e `re.sub()` para remover pontuação (ex.: `FANTASIA!!!` vira `fantasia`). Categoria vazia vira `sem categoria`. O canal é padronizado para Mercado, Loja física ou Web; textos não reconhecidos ficam fora das contagens por canal, sem inventar valor.
-- 💰 **Valores:** `quantidade` é válida se for inteiro maior que zero; `preco_unitario` é válido se estiver preenchido e não for negativo. Registros com problema são apenas **marcados**, sem corrigir nem inventar valores. Isso evita distorcer a análise com dados que não existem.
-- 🕒 **Datas:** `data_venda` é convertida com `datetime.strptime()`. Datas vazias ou inválidas são marcadas e o programa continua, sem trocar pela data de hoje. A apresentação brasileira usa `strftime()` (ex.: `12/10/2025`).
+Cada linha é **um pedido de um único produto**, que pode conter várias unidades. Portanto, a contagem de linhas é uma contagem de **pedidos**, e não de unidades vendidas.
 
-## 🚀 Guia de execução
+### Quatro colunas
 
-1. 🐍 Instale o Python e o Pandas (`py -m pip install pandas`).
-2. 📁 Deixe `main.py` e `halloween_vendas.csv` na mesma pasta.
-3. ▶️ Execute no terminal: `py main.py` (ou `python main.py`).
+| Coluna | Significado |
+|---|---|
+| `categoria` | Tipo do produto (fantasia ou acessório). Pode vir vazia ou com pontuação |
+| `canal_venda` | Canal do pedido: Mercado, Loja física ou Web, escrito de várias formas |
+| `quantidade` | Unidades do produto no pedido (deve ser inteiro maior que zero) |
+| `data_venda` | Data e hora do pedido, no formato `2025-10-12 14:35:00` |
 
-📌 Arquivos necessários: `main.py` e `halloween_vendas.csv`.
+### Regras adotadas
 
-## 📊 Resultados
+**Textos**
+- `categoria`: `.strip()`, `.lower()` e `re.sub()` para remover tudo que não é letra ou espaço. Se ficar vazia, vira `sem categoria`.
+- `canal_venda`: padronizado para Mercado, Loja física e Web por um dicionário. Canal desconhecido seria marcado como `nao reconhecido`, sem adivinhar.
 
-| Verificação | Resultado |
-| --- | --- |
-| 📄 Linhas lidas | 1.500 |
-| 🏷️ Categorias vazias preenchidas | 18 |
-| ✏️ Categorias não vazias alteradas | 1.482 (55 com pontuação removida) |
-| ❌ Quantidade inválida | 7 (todas com valor -1) |
-| 💸 Preço unitário ausente | 12 |
-| ⚠️ Pedidos com problema numérico (sem sobreposição) | 19 |
-| 📆 Datas de venda inválidas | 4 |
-| 🚫 Pedidos cancelados | 109 |
+**Valores**
+- `quantidade`: precisa ser inteiro maior que zero.
+- `preco_unitario`: precisa estar preenchido e não ser negativo (preço 0 é aceito).
+- Registros com problema são **marcados e separados**, sem inventar valores. Preço ausente não vira zero nem média.
 
-### 🚚 Conclusão sobre entrega sem data
+**Datas**
+- `data_venda` é convertida com `datetime.strptime()`. O texto original é preservado, e são extraídos ano, mês, dia e hora, além da data brasileira com `strftime()`.
+- Data vazia ou inválida é marcada e o processamento continua. Nunca é substituída pela data de hoje.
 
-Há 143 pedidos sem `data_entrega`: 109 são Cancelados e 34 têm status **Concluído**. Portanto, a hipótese de que todo pedido sem entrega é cancelado é **falsa nesta base** ❗ Não alteramos o status nem inventamos datas.
+Custos e descontos existem no CSV, mas não foram usados.
 
-### 💡 Descoberta 1: canal
+## Guia de execução
 
-- 📈 **Evidência:** Web 666 pedidos (44,4%), Loja física 551 (36,7%) e Mercado 283 (18,9%), sem registros excluídos.
-- 🧠 **Interpretação:** o site concentra a maior parte dos pedidos registrados.
-- ⚠️ **Limitação:** são pedidos, não receita; incluem cancelados e devolvidos. A base é fictícia e não representa o mercado real.
+### Arquivos necessários
 
-### 💡 Descoberta 2: período
+- `main.py`: executa a análise e imprime os resultados
+- `funcoes.py`: funções de leitura, limpeza, validação e contagem
+- `halloween_vendas.csv`: base de dados (na mesma pasta dos scripts)
 
-- 📈 **Evidência:** outubro teve 393 pedidos em 2024 e 410 em 2025, cerca de 52,5% e 54,8% dos 748 pedidos com data válida em cada ano.
-- 🧠 **Interpretação:** as vendas se concentram no mês do Halloween 🎃, e o padrão se repete nos dois anos.
-- ⚠️ **Limitação:** 4 registros foram excluídos por data inválida; a contagem é de pedidos registrados, não de vendas concluídas.
+### Como executar
 
-## 🤖 Reflexão: qualidade de dados e Machine Learning
+1. Instale o Python 3 e o pandas: `pip install pandas`
+2. Coloque `halloween_vendas.csv` na mesma pasta de `main.py` e `funcoes.py`.
+3. Abra o terminal nessa pasta e rode: `python main.py` (no Windows, também funciona `py main.py`).
 
-Dados com nulos, textos inconsistentes e datas inválidas prejudicam análises e modelos: o mesmo canal escrito de três formas viraria três categorias diferentes. Limpar os dados é necessário, mas **não basta** para evitar overfitting (o modelo decora os dados de treino) ou underfitting (o modelo é simples demais para aprender o padrão). Para isso também importam a representatividade da base, a escolha do modelo e a avaliação com dados que ele não viu no treino.
+O arquivo original **não é alterado**. Os campos são lidos como texto (`dtype=str`, vírgula como separador e `encoding="utf-8"`) e convertidos só quando necessário.
 
-# 🎃 projeto-halloween
-
-Mini-projeto avaliativo de Machine Learning e Visão Computacional (Módulo 1): análise exploratória e limpeza de dados de vendas da **Festa em Cena** 👻
-
-## 📋 Descrição do projeto
-
-A Festa em Cena é uma rede fictícia que vende fantasias e acessórios de Halloween pelos canais **Mercado** 🛒, **Loja física** 🏬 e **Web** 🌐. A base `halloween_vendas.csv` tem problemas intencionais (categorias vazias, pontuação indevida, canais escritos de formas diferentes, quantidades inválidas, preços ausentes e datas inválidas).
-
-🎯 O objetivo do programa (`main.py`) é ler o CSV com Pandas, validar e padronizar os dados e gerar um relatório simples antes de comparar os períodos de venda. O arquivo original nunca é alterado: o tratamento cria colunas novas no DataFrame.
-
-### 🔎 Significado dos dados
-
-- 🧾 **Uma linha:** um pedido de um único produto, que pode ter várias unidades.
-- 🔢 `pedido_id`: número que identifica o pedido.
-- 📅 `data_venda`: data e hora do pedido (horário local de São Paulo).
-- 🏪 `canal_venda`: onde o pedido foi feito (Mercado, Loja física ou Web).
-- 📦 `status_pedido`: situação do pedido (Concluído, Cancelado ou Devolvido).
-
-### ⚙️ Regras adotadas
-
-- 🔤 **Textos:** categoria passa por `.strip()`, `.lower()` e `re.sub()` para remover pontuação (ex.: `FANTASIA!!!` vira `fantasia`). Categoria vazia vira `sem categoria`. O canal é padronizado para Mercado, Loja física ou Web; textos não reconhecidos ficam fora das contagens por canal, sem inventar valor.
-- 💰 **Valores:** `quantidade` é válida se for inteiro maior que zero; `preco_unitario` é válido se estiver preenchido e não for negativo. Registros com problema são apenas **marcados**, sem corrigir nem inventar valores. Isso evita distorcer a análise com dados que não existem.
-- 🕒 **Datas:** `data_venda` é convertida com `datetime.strptime()`. Datas vazias ou inválidas são marcadas e o programa continua, sem trocar pela data de hoje. A apresentação brasileira usa `strftime()` (ex.: `12/10/2025`).
-
-## 🚀 Guia de execução
-
-1. 🐍 Instale o Python e o Pandas (`py -m pip install pandas`).
-2. 📁 Deixe `main.py` e `halloween_vendas.csv` na mesma pasta.
-3. ▶️ Execute no terminal: `py main.py` (ou `python main.py`).
-
-📌 Arquivos necessários: `main.py` e `halloween_vendas.csv`.
-
-## 📊 Resultados
+## Resultados
 
 | Verificação | Resultado |
-| --- | --- |
-| 📄 Linhas lidas | 1.500 |
-| 🏷️ Categorias vazias preenchidas | 18 |
-| ✏️ Categorias não vazias alteradas | 1.482 (55 com pontuação removida) |
-| ❌ Quantidade inválida | 7 (todas com valor -1) |
-| 💸 Preço unitário ausente | 12 |
-| ⚠️ Pedidos com problema numérico (sem sobreposição) | 19 |
-| 📆 Datas de venda inválidas | 4 |
-| 🚫 Pedidos cancelados | 109 |
+|---|---|
+| Linhas lidas | 1.500 |
+| Categorias vazias preenchidas | 18 |
+| Categorias não vazias alteradas | 1.482 (55 com pontuação ou espaços removidos pelo `re.sub`) |
+| Canais não reconhecidos | 0 |
+| Quantidade com problema | 7 (todas menores ou iguais a zero) |
+| Preço com problema | 12 (todos ausentes) |
+| Pedidos afetados, sem somar duas vezes | 19 (nenhum com problema nos dois campos) |
+| Datas de venda inválidas | 4 |
+| Pedidos cancelados | 109 |
 
-### 🚚 Conclusão sobre entrega sem data
+### Conclusão sobre entrega sem data
 
-Há 143 pedidos sem `data_entrega`: 109 são Cancelados e 34 têm status **Concluído**. Portanto, a hipótese de que todo pedido sem entrega é cancelado é **falsa nesta base** ❗ Não alteramos o status nem inventamos datas.
+A hipótese "todo pedido sem `data_entrega` está Cancelado" é **falsa nesta base**. Dos 143 pedidos sem entrega, 109 (76,2%) são cancelados e 34 (23,8%) são concluídos. Todos os cancelados estão sem entrega, mas existem 34 contraexemplos. Isso sugere falha de registro ou inconsistência entre status e data, cuja causa a base não permite saber. Nenhum status foi alterado e nenhuma data foi inventada.
 
-### 💡 Descoberta 1: canal
+### Descoberta 1: pedidos por canal
 
-- 📈 **Evidência:** Web 666 pedidos (44,4%), Loja física 551 (36,7%) e Mercado 283 (18,9%), sem registros excluídos.
-- 🧠 **Interpretação:** o site concentra a maior parte dos pedidos registrados.
-- ⚠️ **Limitação:** são pedidos, não receita; incluem cancelados e devolvidos. A base é fictícia e não representa o mercado real.
+- **Evidência:** Web 666 (44,4%), Loja física 551 (36,7%), Mercado 283 (18,9%). Nenhum pedido foi excluído.
+- **Interpretação:** o site é o canal com mais pedidos registrados.
+- **Limitação:** a contagem inclui todos os status (concluídos, cancelados e devolvidos). Não representa receita, unidades vendidas nem vendas concluídas.
 
-### 💡 Descoberta 2: período
+### Descoberta 2: pedidos por ano-mês
 
-- 📈 **Evidência:** outubro teve 393 pedidos em 2024 e 410 em 2025, cerca de 52,5% e 54,8% dos 748 pedidos com data válida em cada ano.
-- 🧠 **Interpretação:** as vendas se concentram no mês do Halloween 🎃, e o padrão se repete nos dois anos.
-- ⚠️ **Limitação:** 4 registros foram excluídos por data inválida; a contagem é de pedidos registrados, não de vendas concluídas.
+| Ano-mês | Pedidos | Ano-mês | Pedidos |
+|---|---|---|---|
+| 2024-08 | 77 | 2025-08 | 62 |
+| 2024-09 | 104 | 2025-09 | 94 |
+| 2024-10 | 393 | 2025-10 | 410 |
+| 2024-11 | 174 | 2025-11 | 182 |
 
-## 🤖 Reflexão: qualidade de dados e Machine Learning
+- **Evidência:** outubro tem 393 pedidos em 2024 (52,5% do ano) e 410 em 2025 (54,8%).
+- **Interpretação:** os pedidos se concentram em outubro, mês do Halloween (31/10), nos dois anos.
+- **Limitação:** 4 pedidos foram excluídos por data inválida. A contagem é por ano-mês, para não misturar 2024 e 2025, e inclui todos os status. A base é fictícia e não vale para o mercado real.
 
-Dados com nulos, textos inconsistentes e datas inválidas prejudicam análises e modelos: o mesmo canal escrito de três formas viraria três categorias diferentes. Limpar os dados é necessário, mas **não basta** para evitar overfitting (o modelo decora os dados de treino) ou underfitting (o modelo é simples demais para aprender o padrão). Para isso também importam a representatividade da base, a escolha do modelo e a avaliação com dados que ele não viu no treino.
+## Reflexão: Machine Learning e qualidade de dados
+
+A qualidade dos dados influencia diretamente os resultados de análises e modelos de Machine Learning. Um modelo treinado com categorias escritas de formas diferentes, preços ausentes ou datas inválidas aprende com ruído e pode produzir conclusões erradas. Por isso, antes de qualquer modelo, é preciso verificar informações ausentes, textos inconsistentes e datas inválidas, sem inventar valores.
+
+Limpar os dados, porém, **não garante sozinho evitar overfitting ou underfitting**. Overfitting acontece quando o modelo decora os dados de treino e falha com dados novos. Underfitting acontece quando ele é simples demais para captar o padrão. Para evitá-los também importam a **representatividade** da base (esta cobre só agosto a novembro de dois anos e é fictícia), a **escolha do modelo** e a **avaliação** com dados que o modelo não viu.
+
+## Organização do versionamento
+
+| Branch | Objetivo |
+|---|---|
+| `sprint-1-ingestao` | Ler o CSV com Pandas, conferir linhas e mostrar três registros |
+| `sprint-2-strings` | Limpar categoria (strip, lower, re.sub) e padronizar canais |
+| `sprint-3-validacao` | Validar quantidade e preço, marcar e separar problemas |
+| `sprint-4-regras-datas` | Hipótese da entrega sem data, datas com datetime e contagens por canal e ano-mês |
+| `sprint-5-documentacao` | README.md e report.md |
